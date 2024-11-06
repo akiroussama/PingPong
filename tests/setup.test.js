@@ -1,11 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll,beforeEach, afterEach } from 'vitest';
 import http from 'http';
 import request from 'supertest';
 import fs from 'fs';
 import app from '../app/app.js'; // Assurez-vous que ce chemin est correct
 import path from 'path';
 import { sequelize } from '../models/database.js';
-import { describe, it, expect } from 'vitest';
 import ConnectionManager from '../lib/ConnectionManager.js';
 
 describe('Server Setup', () => {
@@ -197,6 +196,14 @@ describe('Application Structure and Configuration', () => {
 
 
 describe('ConnectionManager Singleton & Factory', () => {
+  let manager;
+  
+  beforeEach(() => {
+    manager = ConnectionManager.getInstance();
+    // Clear existing connections before each test
+    manager.connections = [];
+  });
+
   // Test 1: Le gestionnaire de connexions est un Singleton.
   it('should be a Singleton instance', () => {
     const manager1 = ConnectionManager.getInstance();
@@ -272,7 +279,6 @@ describe('ConnectionManager Singleton & Factory', () => {
 
   // Test 11: Le gestionnaire peut fournir une liste des connexions actives.
   it('should provide a list of active connections', () => {
-    const manager = ConnectionManager.getInstance();
     manager.createConnection('MySQL');
     manager.createConnection('PostgreSQL');
     const activeConnections = manager.getActiveConnections();
@@ -345,6 +351,16 @@ describe('ConnectionManager Singleton & Factory', () => {
     connectionTypes.forEach(type => {
       const connection = manager.createConnection(type);
       expect(connection.type).toBe(type);
+    });
+  });
+
+  // Add cleanup after each test
+  afterEach(() => {
+    const activeConnections = manager.getActiveConnections();
+    activeConnections.forEach(conn => {
+      if (conn.isConnected) {
+        manager.closeConnection(conn);
+      }
     });
   });
 });
