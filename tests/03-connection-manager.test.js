@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { ConnectionManager } from '../lib/ConnectionManager.js'; 
 import { connectionManager } from './setup.js';
 
 describe('ConnectionManager', () => {
