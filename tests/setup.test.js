@@ -6,7 +6,8 @@ import request from 'supertest';
 import fs from 'fs';
 import app from '../app/app.js'; // Assurez-vous que ce chemin est correct
 import path from 'path';
-import { sequelize as db } from '../models/database.js'; // Connexion à la base de données
+import { sequelize } from '../models/database.js';
+
 describe('Server Setup', () => {
   let server;
 
@@ -103,7 +104,7 @@ describe('Application Structure and Configuration', () => {
   // Test 8: La base de données est connectée.
   it("should connect to the database", async () => {
     try {
-      await db.authenticate();
+      await sequelize.authenticate();
       expect(true).toBe(true);
     } catch (error) {
       expect(error).toBeUndefined();
@@ -123,16 +124,21 @@ describe('Application Structure and Configuration', () => {
 
   // Test 11: La route '/chat' utilise le contrôleur 'ChatController'.
   it("should use 'ChatController' for '/chat' route", () => {
-    const routes = app._router.stack.filter(
-      layer => layer.route && layer.route.path === '/chat' && layer.route.methods.post
+    const chatRouter = app._router.stack.find(
+      layer => layer.name === 'router' && layer.regexp.test('/chat')
+    );
+    expect(chatRouter).toBeDefined();
+    
+    const routes = chatRouter.handle.stack.filter(
+      layer => layer.route && layer.route.path === '/' && layer.route.methods.post
     );
     expect(routes.length).toBeGreaterThan(0);
   });
 
   // Test 12: Le contrôleur 'ChatController' exporte une fonction 'createMessage'.
-  it("'ChatController' should export a 'createMessage' function", () => {
-    const ChatController = require('../controllers/ChatController.js');
-    expect(typeof ChatController.createMessage).toBe('function');
+  it("'ChatController' should export a 'createMessage' function", async () => {
+    const { createMessage } = await import('../controllers/ChatController.js');
+    expect(typeof createMessage).toBe('function');
   });
 
   // Test 13: Le middleware 'body-parser' est ajouté avant les routes.
@@ -149,15 +155,15 @@ describe('Application Structure and Configuration', () => {
   });
 
   // Test 15: Le modèle 'Message' est correctement défini.
-  it("should have 'Message' model defined", () => {
-    const Message = require('../models/Message.js').default;
+  it("should have 'Message' model defined", async () => {
+    const { default: Message } = await import('../models/Message.js');
     expect(Message).toBeDefined();
   });
 
   // Test 16: La base de données synchronise les modèles sans erreur.
   it("should synchronize models with the database without errors", async () => {
     try {
-      await db.sync();
+      await sequelize.sync();
       expect(true).toBe(true);
     } catch (error) {
       expect(error).toBeUndefined();

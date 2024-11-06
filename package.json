@@ -1,20 +1,22 @@
 {
-    "name": "pingpong",
-    "version": "1.0.0",
-    "description": "Projet fil rouge pour le cours sur l'architecture et les bonnes pratiques de développement.",
-    "main": "app.js",
-    "scripts": {
-      "start": "node app.js",
-      "dev": "nodemon app.js",
-      "test": "vitest"
-    },
-    "dependencies": {
-      "express": "^4.18.2",
-      "body-parser": "^1.20.2"
-    },
-    "devDependencies": {
-      "nodemon": "^2.0.22",
-      "supertest": "^6.3.3",
-      "vitest": "^2.1.4"
-    }
+  "name": "chatgpt-like-app",
+  "version": "1.0.0",
+  "description": "Projet fil rouge pour le cours sur l'architecture et les bonnes pratiques de développement.",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app/app.js",
+    "dev": "nodemon app/app.js",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "sequelize": "^6.31.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "supertest": "^6.3.3",
+    "vitest": "^0.34.1"
   }
+}

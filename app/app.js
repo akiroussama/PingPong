@@ -1,17 +1,39 @@
-  // app.js
+// app.js
 
-  import express from 'express';
+import express from 'express';
+import bodyParser from 'body-parser';
+import chatRoutes from '../routes/chat.js';
+// Synchronisation de la base de données
+import { sequelize as db } from '../models/database.js';
 
-  const app = express();
-
-  app.get('/', (req, res) => {
-    res.status(200).send('Welcome to the ChatGPT-like application!');
+// Synchroniser les modèles
+db.sync()
+  .then(() => {
+    console.log('Database synchronized');
+  })
+  .catch(err => {
+    console.error('Error synchronizing database:', err);
   });
 
-  const PORT = process.env.PORT || 3000;
+const app = express();
 
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
+// Stocker le port dans l'application pour le test
+const PORT = process.env.PORT || 3000;
+app.set('port', PORT);
 
-  export default app;
+// Middleware configuration
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Routes
+app.get('/', (req, res) => {
+  res.status(200).send('Welcome to the ChatGPT-like application!');
+});
+
+app.use('/chat', chatRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+export default app;
